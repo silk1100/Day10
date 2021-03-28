@@ -9,22 +9,26 @@ import dotenv
 
 st.title("12 Days MileStone")
 
-st.subheader("Data")
-st.text("Loading data from Alpha Vantage ...")
 dotenv.load_dotenv()
-@st.cache
-def load_data(symbol="MSFT"):
-    ts = TimeSeries(key=os.getenv("ALPHAKEY"), output_format="pandas", indexing_type='date')
-    data = ts.get_daily_adjusted(symbol=symbol, outputsize=40)[0]
-    return data
+symbol = st.text_input("Enter symbol:")
+st.text(symbol)
 
-df = load_data()
-st.text("PLotting data")
+if len(symbol)> 0:
+    @st.cache
+    def load_data(symbol="MSFT"):
+        ts = TimeSeries(key=os.getenv("ALPHAKEY"), output_format="pandas", indexing_type='date')
+        data = ts.get_daily_adjusted(symbol=symbol, outputsize="full")[0]
+        return data
 
+    df = load_data()
+    year = st.number_input("Select year", value=2020, min_value=df.index.year.min(), max_value=df.index.year.max())
+    month = st.number_input("Select Month", value=1, min_value=df.index.month.min(), max_value=df.index.month.max())
 
-basic_plt = px.line(x=df.index,
-                    y=df['4. close'],
-                    labels={'x':"Date",'y':"Price"},
-                    title="Closing Prices for ")
+    sub_df = df.loc[(df.index.year==year)&(df.index.month==month),:]
 
-st.plotly_chart(figure_or_data=basic_plt)
+    basic_plt = px.line(x=sub_df.index,
+                        y=sub_df['4. close'],
+                        labels={'x':f"Days of {month}/{year}",'y':"Price"},
+                        title=f"Closing Prices for {symbol}")
+
+    st.plotly_chart(figure_or_data=basic_plt)
