@@ -123,7 +123,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 .dmypy.json
+.Procfile.swp
 dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/
+.env
